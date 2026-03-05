@@ -831,6 +831,12 @@ header{display:flex;align-items:center;justify-content:space-between;padding:16p
       </div>
       <input type="text" class="search-input" id="taskSearch" placeholder="Search tasks…">
       <span class="spacer"></span>
+      <!-- Quick Actions Toolbar -->
+      <div class="quick-actions" id="quickActions" style="display:inline-flex;gap:6px;margin-right:8px;">
+        <button class="filter-btn" onclick="filterByPriority('high')" title="High Priority">🔥</button>
+        <button class="filter-btn" onclick="filterByPriority('medium')" title="Medium Priority">⚡</button>
+        <button class="filter-btn" onclick="clearFilters()" title="Clear all filters">🧹</button>
+      </div>
       <button class="spawn-btn" onclick="toggleSelectionMode()" id="selectionModeBtn" title="Toggle selection mode for parallel execution">⚡ Parallel</button>
       <button class="create-btn" onclick="openCreateModal()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1185,6 +1191,27 @@ function toggleTheme() {
   const saved = localStorage.getItem('theme');
   if (saved) document.documentElement.setAttribute('data-theme', saved);
 })();
+
+// Quick filter functions
+function filterByPriority(priority) {
+  currentFilter = 'all'; // Reset status filter
+  document.querySelectorAll('#statusFilters .filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('#statusFilters .filter-btn[data-filter="all"]').classList.add('active');
+  
+  // Filter by priority
+  allTasks = allTasks.filter(t => (t.priority || 'medium') === priority);
+  renderTasks();
+  toast('Showing: ' + priority + ' priority', 'info');
+}
+
+function clearFilters() {
+  currentFilter = 'all';
+  document.querySelectorAll('#statusFilters .filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('#statusFilters .filter-btn[data-filter="all"]').classList.add('active');
+  document.getElementById('taskSearch').value = '';
+  loadTasks(true);
+  toast('Filters cleared', 'info');
+}
 
 function renderTasks() {
   const list = document.getElementById('taskList');

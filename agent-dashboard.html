@@ -1138,6 +1138,7 @@ async function loadTasks(force) {
     if (!force && newHash === _tasksHash) return;
     _tasksHash = newHash;
     allTasks = tasks;
+    updateFilterCounts();
     document.getElementById('taskCount').textContent = allTasks.length;
     if (taskView === 'kanban') { setTaskView('kanban'); } else { setTaskView('list'); }
     // If detail modal is open and user isn't editing content, refresh it
@@ -1330,6 +1331,21 @@ document.getElementById('statusFilters').addEventListener('click', e => {
   currentFilter = btn.dataset.filter;
   renderTasks();
 });
+
+// Update filter button counts
+function updateFilterCounts() {
+  const counts = { all: allTasks.length, new: 0, 'in-progress': 0, done: 0, failed: 0 };
+  allTasks.forEach(t => {
+    const status = t.status || 'new';
+    if (counts[status] !== undefined) counts[status]++;
+  });
+  document.querySelectorAll('#statusFilters .filter-btn').forEach(btn => {
+    const filter = btn.dataset.filter;
+    if (filter !== 'all' && counts[filter] !== undefined) {
+      btn.textContent = filter.charAt(0).toUpperCase() + filter.slice(1).replace('-', ' ') + ' (' + counts[filter] + ')';
+    }
+  });
+}
 
 document.getElementById('taskSearch').addEventListener('input', () => {
   if (taskView === 'kanban') renderKanban();
